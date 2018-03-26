@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>松鼠博客</title>
+
+<!-- style -->
+<%- Loader("/public/css/signup.min.css")
+.css("/public/css/styles.css")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<style type="text/css">
+article{
+    float:left;
+    width:400px;
+}
+article .inner{
+    margin: 1px 10px 1px 0px;
+    height: 400px;
+    border: 0px;
+}
+article .inner img {
+    //max-width: 100%;
+    width: 100%;
+    //max-height: 100%;
+    height: 100%;
+}
+aside{
+    float:left;
+    width:560px;
+}
+
+aside .inner{
+    margin:10px 0px 30px 0px;
+}
+
+error-info{
+    color:red;
+}
+success-info{
+    color:green;
+}
+/* Signup form */
+#signupForm table {
+    border-spacing: 0px;
+    border-collapse: collapse;
+    empty-cells: show;
+}
+#signupForm .label {
+    padding-top: 2px;
+    padding-right: 8px;
+    vertical-align: top;
+    text-align: right;
+    width: 100px;
+    white-space: nowrap;
+}
+#signupForm .field {
+    padding-bottom: 10px;
+    white-space: nowrap;
+}
+#signupForm .status {
+    padding-top: 2px;
+    padding-left: 8px;
+    vertical-align: top;
+    width: 200px;
+    white-space: nowrap;
+}
+#signupForm label.error {
+    background:url("/public/images/unchecked.gif") no-repeat 0px 0px;
+    padding-left: 16px;
+    padding-bottom: 2px;
+    font-weight: bold;
+    color: #EA5200;
+}
+#signupForm label.checked {
+    background:url("/public/images/checked.gif") no-repeat 0px 0px;
+}
+#signupForm .success_msg {
+    font-weight: bold;
+    color: #0060BF;
+    margin-left: 19px;
+}
+#signupForm #lsignupsubmit {
+  visibility: hidden;
+}
+</style>
+
+<!-- scripts -->
+<%- Loader('/public/js/signup.min.js')
+.js('/public/js/jquery-3.2.1.js')
+.js('/public/js/self.js')
+.js('/public/js/jquery.validate.js')
+.done(assetsMap, config.site_static_host, config.mini_assets)
+%>
+
+<% include header %>
+
+    <article>
+        <div class="inner">
+            <img src="/public/images/signup_left.jpeg" alt="图片" />
+        </div>
+    </article>
+
+    <aside>
+        <div class="inner">
+            <div class="remote-info">
+                <% if(typeof(success)!=="undefined" && success!==""){ %>
+                <p class="success-info"> <%= success %> </p>
+                <% }else if(typeof(error)!=="undefined" && error!==""){ %>
+                <p class="error-info"> <%= error %> </p>
+                <% }else{} %>
+            </div>
+            <form id="signupForm" autocomplete="off" action="/signup" method="post">
+                <table>
+                <tr>
+                    <td class="label">
+                        <label id="lEmail" for="Email">邮箱</label>
+                    </td>
+                    <td class="field">
+                        <input id="Email" name="Email" type="text" value="" maxlength="100">
+                    </td>
+                    <td class="status"></td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label id="lUser" for="User">用户名</label>
+                    </td>
+                    <td class="field">
+                        <input id="User" name="User" type="text" value="" maxlength="100">
+                    </td>
+                    <td class="status"></td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label id="lNick" for="Nick">昵称</label>
+                    </td>
+                    <td class="field">
+                        <input id="Nick" name="Nick" type="text" value="" maxlength="100">
+                    </td>
+                    <td class="status"></td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label id="lPassword" for="Password">密码</label>
+                    </td>
+                    <td class="field">
+                        <input id="Password" name="Password" type="password" value="" maxlength="100">
+                    </td>
+                    <td class="status"></td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label id="lPassword2" for="Password2">确认密码</label>
+                    </td>
+                    <td class="field">
+                        <input id="Password2" name="Password2" type="password" value="" maxlength="100">
+                    </td>
+                    <td class="status"></td>
+                </tr>
+                <tr>
+                    <td class="label">
+                        <label id="lsignupsubmit" for="signupsubmit">注册</label>
+                    </td>
+                    <td class="field" colspan="2">
+                        <input id="signupsubmit" name="signup" type="submit" value="注册">
+                    </td>
+                </tr>
+                </table>
+            </form>
+        </div>
+    </aside>
+
+<script type="text/javascript">
+    // validate signup form on keyup and submit
+    var validator = $("#signupForm").validate({
+        //debug:true,
+        rules: {
+            User: {
+                required: true,
+                minlength: 8,
+                //remote: "users.action"
+            },
+            Password: {
+                required: true,
+                minlength: 8
+            },
+            Password2: {
+                required: true,
+                minlength: 8,
+                equalTo: "#Password"
+            },
+            Email: {
+                required: true,
+                email: true,
+                //remote: "emails.action"
+            },
+        },
+        messages: {
+            User: {
+                required: "请输入登录名",
+                minlength: jQuery.validator.format("请输入至少 {0} 个字符"),
+                //remote: jQuery.validator.format("{0} is already in use")
+            },
+            Password: {
+                required: "请输入密码",
+                minlength: jQuery.validator.format("请输入至少 {0} 个字符")
+            },
+            Password2: {
+                required: "请再次输入密码",
+                minlength: jQuery.validator.format("请输入至少 {0} 个字符"),
+                equalTo: "两次密码必须一致"
+            },
+            Email: {
+                required: "请输入电子邮箱地址",
+                email: "请输入合法的电子邮箱地址",
+                remote: jQuery.validator.format("{0} is already in use")
+            },
+        },
+        // the errorPlacement has to take the table layout into account
+        errorPlacement: function(error, element) {
+            error.appendTo(element.parent().next());
+        },
+        // specifying a submitHandler prevents the default submit, good for the demo
+        //submitHandler: function() {
+            //alert("submitted!");
+        //},
+        // set this class to error-labels to indicate valid fields
+        success: function(label) {
+            // set &nbsp; as text for IE
+            label.html("&nbsp;").addClass("checked");
+        },
+        highlight: function(element, errorClass) {
+            $(element).parent().next().find("." + errorClass).removeClass("checked");
+        }
+    });
+
+    // default value of nick is loginname
+    $("#Nick").focus(function() {
+        var user = $("#User").val();
+        if (user && !this.value) {
+            this.value = user;
+        }
+    });
+</script>
+<%- include footer %>

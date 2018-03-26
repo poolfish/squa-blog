@@ -1,0 +1,28 @@
+</head>
+<body>
+<div id="wrapper">
+    <header>
+        <a id="blog_logo" href="#"><img src="<%- staticFile('/public/images/logo.jpg') %>" width=90px height=110px alt="logo"></img></a>
+        <a id="blog_title" href="/"> 松鼠博客 </a>
+        <nav class="links">
+            <% if (!current_user) { %>
+            <ul>
+            <li class="choice1"><a href="/login">登录</a></li>
+            <li class="choice2"><a href="/signup">注册</a></li>
+            </ul>
+            <% }else{ %>
+            <ul>
+            <li class="choice1"><a href="/write_blog">新建博客</a></li>
+            <li class="choice2"><a href="/logout" class="a_post" rel="nofollow">退出登录</a></li>
+            </ul>
+            <% } %>
+        </nav>
+        <% if (current_user) { %>
+        <a class="user_card" href="#">
+            <ul>
+                <li><img src="<%- staticFile('/public/images/avatar.jpg') %>"></img></li>
+                <li><span><%= current_user.name %></span></li>
+            </ul>
+        </a>
+        <% } %>
+    </header>

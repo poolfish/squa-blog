@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>松鼠博客</title>
+
+<!-- style -->
+<%- Loader("/public/css/contact.min.css")
+.css("/public/css/styles.css")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<style type="text/css">
+</style>
+
+<!-- scripts -->
+<%- Loader('/public/js/contact.min.js')
+.js('/public/js/jquery-3.2.1.js')
+.js('/public/js/self.js')
+.done(assetsMap, config.site_static_host, config.mini_assets)
+%>
+
+<% include header %>
+<a href="mailto:poolfish@163.com">给我写邮件</a>
+<script type="text/javascript">
+</script>
+<%- include footer %>

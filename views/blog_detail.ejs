@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>松鼠博客</title>
+
+<!-- style -->
+<%- Loader("/public/css/blog_detail.min.css")
+.css("/public/css/styles.css")
+.css("/public/css/jqpagination.css")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<style type="text/css">
+#content {
+    width:960px;
+    //height:350px;
+    box-sizing:border-box;
+    margin: 5px auto;
+    padding: 5px;
+    border: 1px solid gray;
+}
+#edit-blog-area{
+    height:auto;
+    overflow:hidden;
+}
+#edit-blog{
+    float:right;
+    margin:2px 5px;    
+}
+#comment {
+    width:750px;
+    height:100px;
+    border: 1px solid gray; 
+    margin-left: 2px;
+}
+#commentBtn {
+    font-size: 14px;
+    margin-left: 5px;
+    border-radius:5px; 
+}
+.comment-list {
+    margin-top: 5px;
+}
+.comment-list-node{
+	position: relative;
+	border: 1px solid #ccc;
+}
+.comment-list-node button{
+	position: absolute;
+	right: 5px;
+	bottom: 5px;
+}
+.comment { width: 680px; margin: 20px auto; position: relative; background: #fff; padding: 20px 50px 50px; border: 1px solid #DDD; border-radius: 5px; }
+.comment h3 { height: 28px; line-height: 28px }
+.com_form { width: 100%; position: relative }
+.input { width: 99%; height: 60px; border: 1px solid #ccc }
+.com_form p { height: 28px; line-height: 28px; position: relative; margin-top: 10px; }
+span.emotion { width: 42px; height: 20px; padding-left: 20px; cursor: pointer }
+span.emotion:hover { background-position: 2px -28px }
+.qqFace { margin-top: 4px; background: #fff; padding: 2px; border: 1px #dfe6f6 solid; }
+.qqFace table td { padding: 0px; }
+.qqFace table td img { cursor: pointer; border: 1px #fff solid; }
+.qqFace table td img:hover { border: 1px #0066cc solid; }
+#show { width: 770px; margin: 20px auto; background: #fff; padding: 5px; border: 1px solid #DDD; vertical-align: top; }
+.sub_btn { position: absolute; right: 0px; top: 0; display: inline-block; zoom: 1; /* zoom and *display = ie7 hack for display:inline-block */  *display: inline;
+vertical-align: baseline; margin: 0 2px; outline: none; cursor: pointer; text-align: center; font: 14px/100% Arial, Helvetica, sans-serif; padding: .5em 2em .55em; text-shadow: 0 1px 1px rgba(0,0,0,.6); -webkit-border-radius: 3px; -moz-border-radius: 3px; border-radius: 3px; -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2); -moz-box-shadow: 0 1px 2px rgba(0,0,0,.2); box-shadow: 0 1px 2px rgba(0,0,0,.2); color: #e8f0de; border: solid 1px #538312; background: #64991e; background: -webkit-gradient(linear, left top, left bottom, from(#7db72f), to(#4e7d0e)); background: -moz-linear-gradient(top, #7db72f, #4e7d0e);  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#7db72f', endColorstr='#4e7d0e');
+}
+.sub_btn:hover { background: #538018; background: -webkit-gradient(linear, left top, left bottom, from(#6b9d28), to(#436b0c)); background: -moz-linear-gradient(top, #6b9d28, #436b0c);  filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#6b9d28', endColorstr='#436b0c');
+</style>
+
+<%- Loader("/public/js/blog_detail.min.js")
+.js("/public/js/jquery-3.2.1.js")
+.js("/public/js/self.js")
+.js("/public/js/jquery.form.js")
+.js("/public/js/jquery.qqFace.js")
+.js("/public/js/jquery.jqpagination.js")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<% include header %>
+
+<div id="content" name="content">
+
+<% if (typeof(title) !== 'undefined' && title) { %>
+<h2><%= title %></h2>
+<% } %>
+
+<% if (typeof(keywords) !== 'undefined' && keywords) { %>
+<h5>
+<% for(var i = 0; i < keywords.length; i++) { %>
+<%- keywords[i] %>;
+<% } %>
+</h5>
+<% } %>
+
+<% if (typeof(content) !== 'undefined' && content) { %>
+<%- content %>
+<% } %>
+
+</div>
+
+<% if (current_user && current_user._id == author_id) { %>
+<div id="edit-blog-area">
+<a id="edit-blog" href="/edit_blog/<%= blog_id %>">修改博客</a>
+</div>
+<% } %>
+<% if (current_user) { %>
+<input type="hidden" id="author_id" name="author_id" value="<%= current_user._id %>"></input>
+<% } %>
+<textarea id="comment" name="comment" placeholder="说点什么吧..."></textarea>
+<div>
+	<button class="button blue" id="commentBtn">评&nbsp;论</button>
+    <span class="emotion">表情</span>
+</div>
+
+<hr />
+
+<div class="comment-list">
+</div>
+<div class="pagination">
+	<a href="#" class="first" data-action="first">&laquo;</a>
+	<a href="#" class="previous" data-action="previous">&lsaquo;</a>
+	<input type="text" readonly="readonly" data-max-page="40" />
+	<a href="#" class="next" data-action="next">&rsaquo;</a>
+	<a href="#" class="last" data-action="last">&raquo;</a>
+</div>
+        
+<script type="text/javascript">
+var current_page = 1;
+function replace_em(str){
+	str = str.replace(/\</g,'&lt;');
+	str = str.replace(/\>/g,'&gt;');
+	str = str.replace(/\n/g,'<br/>');
+	str = str.replace(/\[em_([0-9]*)\]/g,'<img src="/public/images/arclist/$1.gif" border="0" />');
+	return str;
+}
+function CurentTime() {   
+    var now = new Date();  
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var hh = now.getHours();
+    var mm = now.getMinutes();
+    var ss = now.getSeconds();
+    var clock = year + "-";
+    if (month < 10)  clock += "0";  
+    clock += month + "-";  
+    if (day < 10)  clock += "0";  
+    clock += day + " ";  
+    if (hh < 10)  clock += "0";  
+    clock += hh + ":";  
+    if (mm < 10) clock += '0';   
+    clock += mm + ":";   
+    if (ss < 10) clock += '0';   
+    clock += ss;   
+
+    return(clock);   
+}  
+
+// 通过ajax-post获取blog的评论页
+// page:分页号，1开始
+function getBlogCommentsPage(blog_id,page){
+    $.ajax({
+        type:"POST",
+        url:"/getBlogCommentsPage/"+blog_id,
+        data:{
+            page:page
+        },
+        success:function(data){
+            console.log(data);
+            renderBlogCommentsPage(JSON.parse(data).comments);
+			$('.pagination').jqPagination({
+				max_page: JSON.parse(data).total_pages,
+				//link_string : '/?page={page_number}',
+				paged: function(page) {
+					current_page = page;
+					getBlogCommentsPage('<%= blog_id %>',page);
+				}
+			});
+        },
+        error:function(){
+            alert('error occured while trye to get comments page'+page);
+        },
+    });
+}
+
+// 利用获取到的blog评论页局部刷新
+function renderBlogCommentsPage(data) {
+    $(".comment-list-node").remove();
+    for (let i =0; i<data.length; i++) {
+        let node_node = $("<div class='comment-list-node'></div>");
+        $(".comment-list").append(node_node);
+        {
+            let author = data[i].author_id.name;
+            let author_node = $("<h3>"+author+"</h3>");
+            node_node.append(author_node);
+        }
+        {
+            let time_node = $("<p>"+data[i].update_at+"</p>");
+            node_node.append(time_node);
+        }
+        {
+            let content_node = $("<p>"+replace_em(data[i].content)+"</p>");
+            node_node.append(content_node);
+        }
+        <% if (current_user && current_user._id == author_id) { %>
+        let btn_node = $("<button>删除评论</button>");
+        node_node.append(btn_node);
+        btn_node.click({cid:data[i]._id},function(event){
+            var btn = $(this);
+            $.ajax({
+                type:"POST",
+                url: "/delcomment/"+event.data.cid,
+                data:{},
+                success:function(data){
+                    console.log('page: '+current_page);
+                    getBlogCommentsPage('<%= blog_id %>', current_page);
+                },
+                error:function(){
+                    alert('/delcomment/'+event.data.cid+' error occured!');
+                },
+            });
+        });
+        <% } %>
+    }
+}
+
+$(function(){
+    if (!'<%= current_user %>') {
+        $("#comment").attr("disabled",true);
+        $("#commentBtn").attr("disabled",true);
+    }
+    $('.pagination').jqPagination({
+		max_page: <%= total_pages %>,
+		//link_string : '/?page={page_number}',
+		paged: function(page) {
+			current_page=page;
+			getBlogCommentsPage('<%= blog_id %>',page);
+		}
+    });
+    getBlogCommentsPage('<%= blog_id %>',1);
+	$('.emotion').qqFace({
+		id: 'facebox', 
+		assign:'comment', 
+		path:'/public/images/arclist/'
+	});
+    $("#commentBtn").click(function(){
+        $(this).ajaxSubmit({
+            type: 'post',
+            url: '/'+'<%= blog_id %>'+'/addcomment',
+            data: {
+                'blog_id': '<%= blog_id %>',
+                'author_id': $("#author_id").val(),
+                'comment': $("#comment").val()
+            },
+            success: function(data) {
+                getBlogCommentsPage('<%= blog_id %>', current_page);
+            },
+            error: function(){
+                alert('addcomment for '+'<%= blog_id %>'+'error occured');
+            }
+
+        });
+        return false;
+    });
+});
+</script>
+
+<% include footer %>

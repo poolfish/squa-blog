@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>松鼠博客</title>
+
+<!-- style -->
+<%- Loader("/public/css/edit_blog.min.css")
+.css("/public/css/styles.css")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<style type="text/css">
+label {
+    margin-left: 5px;
+}
+div.title-area{
+    margin-top: 5px;
+}
+#b_title{
+    width: 40%;
+}
+#b_id{
+    //no use,why?
+    display:none;
+}
+div.content-area{
+    margin-top: 10px;
+}
+#finishBtn {
+    margin: 5px;
+}
+</style>
+
+<!-- scripts -->
+<%- Loader('/public/js/edit_blog.min.js')
+.js('/public/js/jquery-3.2.1.js')
+.js('/public/js/self.js')
+.js('/public/js/jquery.cleditor.js')
+.done(assetsMap, config.site_static_host, config.mini_assets)
+%>
+
+<% include header %>
+
+<form action="/edit_blog" method="post">
+	<div class="title-area">
+		<label>标题: </label>
+		<input id="b_title" name="b_title"></input>
+	</div>
+	<div class="title-area">
+		<label>关键字: </label>
+		<input id="b_keywords" name="b_keywords" placeholder="以空格分割"></input>
+	</div>
+	<div class="content-area">
+		<textarea id="b_content" name="b_content"></textarea>
+	</div>
+    <input type="hidden" id="b_id" name="blog_id" value="<%= blog_id %>"></input>
+	<button id="finishBtn" type="submit">完&nbsp;成</button>
+</form>
+
+<script type="text/javascript">
+
+$(function(){
+	$("#b_content").cleditor({
+		height: 500
+	}); 
+    $("#b_title").val('<%= title %>');
+    $("#b_keywords").val('<%= keywords %>');
+    var o = $("#b_content").cleditor()[0];
+    $("#b_content").val('<%- content %>');
+    o.updateFrame();
+});
+
+</script>
+<%- include footer %>

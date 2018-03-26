@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>松鼠博客</title>
+
+<!-- style -->
+<%- Loader("/public/css/index.min.css")
+.css("/public/css/styles.css")
+.css("/public/css/jqpagination.css")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<style type="text/css">
+article{
+    float:left;
+    width:960px;
+}
+article .inner{
+    margin:10px 10px 10px 0px;
+}
+article div.blog-info{
+    border:1px solid #cccc99;
+    background-color:#f0f0f4;
+    padding:5px;
+}
+article div.blog-info h5{
+    text-align:right;
+}
+ul.pagination{
+    display: inline-block;
+    padding: 0;
+    margin: 0;
+}
+ul.pagination li{display: inline;}
+ul.pagination li a{
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+</style>
+
+<!-- scripts -->
+<%- Loader('/public/js/index.min.js')
+.js('/public/js/jquery-3.2.1.js')
+.js('/public/js/self.js')
+.js('/public/js/jquery.jqpagination.js')
+.done(assetsMap, config.site_static_host, config.mini_assets)
+%>
+
+<% include header %>
+<article>
+    <div class="inner">
+    </div>
+    <div class="pagination">
+        <a href="#" class="first" data-action="first">&laquo;</a>
+        <a href="#" class="previous" data-action="previous">&lsaquo;</a>
+        <input type="text" readonly="readonly" data-max-page="40" />
+        <a href="#" class="next" data-action="next">&rsaquo;</a>
+        <a href="#" class="last" data-action="last">&raquo;</a>
+    </div>
+</article>
+
+<script type="text/javascript">
+
+var current_page = 1;
+
+$(function(){
+
+	$('.pagination').jqPagination({
+		max_page: 1,
+		//link_string : '/?page={page_number}',
+		paged: function(page) {
+			getBlogsPage(page);
+		}
+	});
+    getBlogsPage(1);
+});
+
+function getBlogsPage(page){
+
+    $.ajax({
+        type:"POST",
+        url:"/getBlogsPage",
+        data:{
+            page:page
+        },
+        success:function(data){
+            console.log('getBlogsPage success: '+data);
+            renderBlogsPage(JSON.parse(data));
+            $('.pagination').jqPagination({
+                max_page: JSON.parse(data).total_pages,
+                //link_string : '/?page={page_number}',
+                paged: function(page) {
+                    current_page = page;
+                    getBlogsPage(page);
+                }
+            });
+        },
+        error:function(){
+            alert('error occured while trye to get page!');
+        },
+    });
+}
+
+function renderBlogsPage(data) {
+
+    if (!data || !data.blogs) return;
+
+    $("article div.inner div.blog-info").remove();
+
+    for(let i = 0; i < data.blogs.length; i++){
+
+        let blog_div = $('<div class="blog-info"></div>');
+        $("article div.inner").append(blog_div);
+
+        let blog_title = $('<a href="#"><h2>博客标题</h2></a>');
+        blog_div.append(blog_title);
+        if(data.blogs[i].title){
+            $("article div.inner :nth-child("+(i+1)+") a h2").text(data.blogs[i].title);
+            $("article div.inner :nth-child("+(i+1)+") a:first").attr('href', '/blog_detail/'+data.blogs[i].blog_id);
+        }
+
+        let blog_keywords = $('<h4 class="keywords">关键字: </h4>');
+        blog_div.append(blog_keywords);
+        if(data.blogs[i].keywords){
+            let keywords = '关键字: ';
+            for(let j = 0; j < data.blogs[i].keywords.length; j++){
+                keywords += data.blogs[i].keywords[j] + ' ';
+            }
+            $("article div.inner :nth-child("+(i+1)+") h4.keywords").text(keywords);
+        }
+
+        let blog_author = $('<a href="#"><h4 class="author">作者:</h4></a>');
+        blog_div.append(blog_author);
+        if(data.blogs[i].author){
+            $("article div.inner>:nth-child("+(i+1)+") a:eq(1)").attr('href', '/users/'+data.blogs[i].author);
+            $("article div.inner>:nth-child("+(i+1)+") h4.author").text('作者: '+data.blogs[i].author);
+        }
+
+        let blog_content = $('<p>博客摘要</p>');
+        blog_div.append(blog_content);
+        if (data.blogs[i].contents) {
+            $("article div.inner :nth-child("+(i+1)+") p").text(data.blogs[i].contents);
+        }
+
+        let blog_others = $('<h5>浏览数:  评论数:</h5>');
+        blog_div.append(blog_others);
+        if(data.blogs[i].total_view !== undefined && data.blogs[i].total_comments !== undefined){
+            var nums = '评论数: '+data.blogs[i].total_comments + ' ' + '浏览数: '+data.blogs[i].total_view;
+            $("article div.inner :nth-child("+(i+1)+") h5").text(nums);
+        }
+
+        <% if (current_user && current_user.name == 'admin') { %>
+            let blog_del = $('<button class="blog_del">删除</button>');
+            blog_div.append(blog_del);
+        	blog_del.click({bid:data.blogs[i].blog_id},function(event){
+            var btn = $(this);
+            $.ajax({
+                type:"POST",
+                url: "/delblog/"+event.data.bid,
+                data:{},
+                success:function(data){
+                    console.log('page: '+current_page);
+                    getBlogsPage(current_page);
+                },
+                error:function(){
+                    alert('/delblog/'+event.data.bid+' error occured!');
+                },
+            });
+        });
+        <% } %>
+    }
+}
+
+</script>
+<%- include footer %>

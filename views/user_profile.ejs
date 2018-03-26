@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>松鼠博客</title>
+
+<!-- style -->
+<%- Loader("/public/css/user_profile.min.css")
+.css("/public/css/styles.css")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<style type="text/css">
+p,label,textarea,button{
+    margin-left:5px;
+}
+textarea.signature{
+    width:60%;
+    height:50px;
+}
+#nick{
+    font-size: 18px;
+}
+#save{
+    margin-bottom: 5px;
+}
+p.notify_success{
+    color:blue;
+}
+</style>
+
+<!-- scripts -->
+<%- Loader('/public/js/user_profile.min.js')
+.js('/public/js/jquery-3.2.1.js')
+.js('/public/js/self.js')
+.done(assetsMap, config.site_static_host, config.mini_assets)
+%>
+
+<% include header %>
+
+<div class=notify_area>
+    <p></p>
+</div>
+<p class=user>用户名: <%= user %></p>
+<label for="nick">昵称:</label>
+<input id=nick value="<%= nick %>"></input>
+<p class=email>E-mail: <%= email %></p>
+<textarea class=signature><%= signature %></textarea>
+<% if (current_user) { %>
+<div>
+    <button id="save" class="button medium blue">保存</button>
+</div>
+<% } %>
+
+<script type="text/javascript">
+$(function() {// 初始化内容
+    $("div.notify_area").attr("visibility","hidden");
+    if($("#save").length == 0){
+        $("textarea.signature").attr("disabled",true);
+        $("#nick").attr("disabled",true);
+    }
+}); 
+$("#save").click(function(){
+    var signature = $("textarea.signature").val();
+    var nick = $("#nick").val();
+    console.log("signature:"+signature);
+    console.log("nick:"+nick);
+    console.log("<%= signature %>");
+    console.log("<%= nick %>");
+    if ((nick.length>0 && nick!== "<%= nick %>") || (signature.length>0 && signature !== "<%= signature %>")){
+        console.log("post sending");
+        $.ajax({
+            type: 'POST',
+            url: '/users/<%= user %>/edit',
+            data: {
+                "user": "<%= user %>",
+                "signature": signature,
+                "nick": nick
+            },
+            success: function(data) {
+                console.log(data);
+                $("div.notify_area>p").attr("class","notify_success");
+                $("div.notify_area>p").text("签名修改成功!");
+                $("div.notify_area").fadeIn();//显示
+                setTimeout(function(){//5秒后隐藏
+                    $("div.notify_area").fadeOut();
+                }, 5000);
+            },
+        });
+    }
+});
+</script>
+<%- include footer %>

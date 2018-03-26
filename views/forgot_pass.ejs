@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>松鼠博客</title>
+
+<!-- style -->
+<%- Loader("/public/css/forgot_pass.min.css")
+.css("/public/css/styles.css")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<style type="text/css">
+article{
+    float:left;
+    width:400px;
+}
+article .inner{
+    margin: 1px 10px 1px 0px;
+    height: 400px;
+    border: 0px;
+}
+article .inner img {
+    //max-width: 100%;
+    width: 100%;
+    //max-height: 100%;
+    height: 100%;
+}
+
+aside{
+    float:left;
+    width:560px;
+}
+
+aside .inner{
+    margin:10px 0px 30px 0px;
+}
+
+#signupForm {
+    margin: 120px auto;
+}
+/* Signup form */
+
+#signupForm table {
+    border-spacing: 0px;
+    border-collapse: collapse;
+    empty-cells: show;
+}
+
+#signupForm .label {
+    padding-top: 2px;
+    padding-right: 8px;
+    vertical-align: top;
+    text-align: right;
+    width: 100px;
+    white-space: nowrap;
+}
+
+#signupForm .field {
+    padding-bottom: 10px;
+    white-space: nowrap;
+}
+
+#signupForm .status {
+    padding-top: 2px;
+    padding-left: 8px;
+    vertical-align: top;
+    width: 200px;
+    white-space: nowrap;
+}
+
+//#signupForm .textfield {
+  //width: 150px;
+//}
+#signupForm label.error {
+    background:url("../images/unchecked.gif") no-repeat 0px 0px;
+    padding-left: 16px;
+    padding-bottom: 2px;
+    font-weight: bold;
+    color: #EA5200;
+}
+
+#signupForm label.checked {
+    background:url("../images/checked.gif") no-repeat 0px 0px;
+}
+
+#signupForm .success_msg {
+    font-weight: bold;
+    color: #0060BF;
+    margin-left: 19px;
+}
+
+#signupForm #lsignupsubmit {
+  visibility: hidden;
+}
+
+</style>
+
+<!-- scripts -->
+<%- Loader('/public/js/forgot_pass.min.js')
+.js('/public/js/jquery-3.2.1.js')
+.js('/public/js/self.js')
+.js('/public/js/jquery.validate.js')
+.done(assetsMap, config.site_static_host, config.mini_assets)
+%>
+
+<% include header %>
+
+<article>
+	<div class="inner">
+		<img src="/images/signup_left.jpeg" alt="图片" />
+	</div>
+</article>
+
+<aside>
+	<div class="inner">
+		<form id="signupForm" autocomplete="off" action="/forgot_pass" method="post">
+			<table>
+			<tr>
+				<td class="label">
+					<label id="lEmail" for="Email">邮箱</label>
+				</td>
+				<td class="field">
+					<input id="Email" name="Email" type="text" value="" maxlength="100">
+				</td>
+				<td class="status"></td>
+			</tr>
+			<tr>
+				<td class="label">
+					<label id="lsignupsubmit" for="signupsubmit">注册</label>
+				</td>
+				<td class="field" colspan="2">
+					<input id="signupsubmit" name="signup" type="submit" value="找回密码">
+				</td>
+			</tr>
+			</table>
+		</form>
+	</div>
+</aside>
+
+<script type="text/javascript">
+
+$(function(){
+    // validate signup form on keyup and submit
+    var validator = $("#signupForm").validate({
+        debug:true,
+        rules: {
+            Email: {
+                required: true,
+                email: true,
+                //remote: "emails.action"
+            },
+        },
+        messages: {
+            Email: {
+                required: "请输入电子邮箱地址",
+                email: "请输入合法的电子邮箱地址",
+                remote: jQuery.validator.format("{0} is already in use")
+            },
+        },
+        // the errorPlacement has to take the table layout into account
+        errorPlacement: function(error, element) {
+            error.appendTo(element.parent().next());
+        },
+        // specifying a submitHandler prevents the default submit, good for the demo
+        submitHandler: function() {
+            alert("submitted!");
+        },
+        // set this class to error-labels to indicate valid fields
+        success: function(label) {
+            // set &nbsp; as text for IE
+            label.html("&nbsp;").addClass("checked");
+        },
+        highlight: function(element, errorClass) {
+            $(element).parent().next().find("." + errorClass).removeClass("checked");
+        }
+    });
+});
+
+</script>
+<%- include footer %>

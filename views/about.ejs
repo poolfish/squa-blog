@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>松鼠博客</title>
+
+<!-- style -->
+<%- Loader("/public/css/about.min.css")
+.css("/public/css/styles.css")
+.done(assetsMap, config.site_static_host, config.mini_assets) %>
+
+<style type="text/css">
+</style>
+
+<!-- scripts -->
+<%- Loader('/public/js/about.min.js')
+.js('/public/js/jquery-3.2.1.js')
+.js('/public/js/self.js')
+.done(assetsMap, config.site_static_host, config.mini_assets)
+%>
+
+<% include header %>
+<h1> 码农太懒，此页还没有开发! </h1>
+<script type="text/javascript">
+</script>
+<%- include footer %>
